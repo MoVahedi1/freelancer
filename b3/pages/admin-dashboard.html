@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ داشبورد مدیریت</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="../admin-config.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Global font scaling for better balance */
+        html { font-size: 15px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .stat-card:nth-child(5) {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        }
+        
+        .table-row:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating { animation: float 3s ease-in-out infinite; }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced Card Styles */
+        .data-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .data-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .data-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .data-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .data-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .data-card .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .data-card .card-id {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #6b7280;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-card .card-body {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .data-card .card-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-card .field-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .data-card .field-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .data-card .field-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-card .field-value {
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        .data-card .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .data-card .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .data-card .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .data-card .btn-view {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        
+        .data-card .btn-edit {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: white;
+        }
+        
+        .data-card .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #dbeafe; color: #1e40af; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        .status-accepted { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-read { background: #f3f4f6; color: #374151; }
+        .status-unread { background: #fef3c7; color: #92400e; }
+        
+        /* User Type Badges */
+        .user-type-employer { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .user-type-freelancer { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+        .user-type-admin { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        
+        /* Responsive Grid */
+        @media (min-width: 640px) {
+            .cards-grid { grid-template-columns: repeat(1, 1fr); }
+        }
+        
+        @media (min-width: 1024px) {
+            .cards-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (min-width: 1536px) {
+            .cards-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+        
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        /* Search and Filter Enhancements */
+        .search-highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        /* Enhanced Search Interface */
+        .quick-filter-tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .quick-filter-tag:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .quick-filter-tag.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            border-color: #3b82f6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .job-status-filter-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            color: #6b7280;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .job-status-filter-tag:hover {
+            border-color: #10b981;
+            color: #10b981;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+        }
+        
+        .job-status-filter-tag.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-color: #10b981;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .quick-filter-tag.active:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Advanced Search Panel Animation */
+        #advancedSearchPanel {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced User Cards */
+        .user-card-enhanced {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.98) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-card-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .user-card-enhanced:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .user-card-enhanced:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-avatar::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+            border-radius: 50%;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .user-status-online {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background: #10b981;
+            border: 3px solid white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .user-card-list {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .user-card-list:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateX(4px);
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 32px;
+        }
+        
+        .pagination button {
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .pagination button:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .pagination button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Loading States */
+        .skeleton-loader {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen font-vazir">
+    <!-- Global Loading Indicator -->
+    <div id="globalLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-lg p-8 flex items-center space-x-4 space-x-reverse shadow-2xl">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="text-gray-700 font-medium">در حال بارگذاری داشبورد...</span>
+        </div>
+    </div>
+    <div class="min-h-screen">
+        <!-- Enhanced Header -->
+        <header class="glass-effect shadow-xl border-b border-white/20 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+                    <!-- Left Side - Logo and Title -->
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="floating">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-shield-alt text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                داشبورد مدیریت پیشرفته
+                            </h1>
+                            <p class="text-sm text-gray-600">سیستم مدیریت جامع پلتفرم</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Controls and Actions -->
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                            <!-- Performance Indicators -->
+                            <div class="hidden md:flex items-center space-x-3 space-x-reverse">
+                                <!-- Database Status -->
+                                <div id="dbStatus" class="flex items-center space-x-2 space-x-reverse bg-white/20 rounded-lg px-3 py-2">
+                                    <div class="flex items-center space-x-1 space-x-reverse">
+                                        <div id="dbIndicator" class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-gray-600">دیتابیس</span>
+                                    </div>
+                                </div>
+                                <!-- System Status -->
+                                <div class="flex items-center space-x-2 space-x-reverse bg-white/20 rounded-lg px-3 py-2">
+                                    <div class="flex items-center space-x-1 space-x-reverse">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-gray-600">آنلاین</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Refresh Buttons -->
+                            <button onclick="refreshSection()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md" title="به‌روزرسانی بخش فعلی (Ctrl+R)">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button onclick="refreshAllData()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md" title="به‌روزرسانی کل داده‌ها (Ctrl+Shift+R)">
+                                <i class="fas fa-redo-alt"></i>
+                            </button>
+                            <button id="autoRefreshBtn" onclick="toggleAutoRefresh()" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md" title="به‌روزرسانی خودکار">
+                                <i class="fas fa-clock"></i>
+                            </button>
+                            
+                            <div class="h-6 w-px bg-gray-300"></div>
+                            
+                            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-sign-out-alt ml-2"></i>
+                                خروج
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Stats Cards -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-600">کل کاربران</p>
+                            <p id="totalUsers" class="text-2xl font-bold text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <i class="fas fa-briefcase text-green-600 text-xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-600">کل آگهی‌ها</p>
+                            <p id="totalJobs" class="text-2xl font-bold text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-project-diagram text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-600">پروژه‌های فعال</p>
+                            <p id="activeProjects" class="text-2xl font-bold text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <i class="fas fa-handshake text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-600">کل درخواست‌ها</p>
+                            <p id="totalRequests" class="text-2xl font-bold text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <i class="fas fa-envelope text-red-600 text-xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-600">کل پیام‌ها</p>
+                            <p id="totalMessages" class="text-2xl font-bold text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-orange-100 rounded-lg">
+                            <i class="fas fa-recycle text-orange-600 text-xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <p class="text-sm text-gray-600">آیدی‌های بازاستفاده</p>
+                            <p id="reusableIds" class="text-2xl font-bold text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enhanced Navigation Tabs -->
+            <div class="flex space-x-1 space-x-reverse bg-white/30 rounded-2xl p-2 backdrop-blur-sm">
+                <button onclick="showSection('users')" class="tab-btn px-6 py-3 rounded-xl font-medium transition-all duration-200 border-b-2 border-blue-500 text-blue-600 relative">
+                    <i class="fas fa-users ml-2"></i>
+                    کاربران
+                    <span id="usersCache" class="cache-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" title="داده‌ها کش شده"></span>
+                </button>
+                <button onclick="showSection('jobs')" class="tab-btn px-6 py-3 rounded-xl font-medium transition-all duration-200 border-b-2 border-transparent text-gray-500 relative">
+                    <i class="fas fa-briefcase ml-2"></i>
+                    آگهی‌ها
+                    <span id="jobsCache" class="cache-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" title="داده‌ها کش شده"></span>
+                </button>
+                <button onclick="showSection('requests')" class="tab-btn px-6 py-3 rounded-xl font-medium transition-all duration-200 border-b-2 border-transparent text-gray-500 relative">
+                    <i class="fas fa-handshake ml-2"></i>
+                    درخواست‌ها
+                    <span id="requestsCache" class="cache-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" title="داده‌ها کش شده"></span>
+                </button>
+                <button onclick="showSection('messages')" class="tab-btn px-6 py-3 rounded-xl font-medium transition-all duration-200 border-b-2 border-transparent text-gray-500 relative">
+                    <i class="fas fa-envelope ml-2"></i>
+                    پیام‌ها
+                    <span id="messagesCache" class="cache-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" title="داده‌ها کش شده"></span>
+                </button>
+            </div>
+            
+            <!-- Enhanced Content Sections -->
+            <div id="content-area" class="animate-fade-in">
+                <!-- Enhanced Users Section -->
+                <div id="users-section" class="content-section active">
+                    <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-6 border-b border-white/20">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-3 space-x-reverse">
+                                    <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-users text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800">مدیریت کاربران</h3>
+                                        <p class="text-sm text-gray-500">مدیریت کامل اعضای پلتفرم</p>
+                                    </div>
+                                </div>
+                                <button onclick="showAddUserModal()" class="btn-success text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 card-hover">
+                                    <i class="fas fa-user-plus ml-2"></i>افزودن کاربر
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Enhanced Search and Filter Bar -->
+                            <div class="mb-8 space-y-4">
+                                <!-- Main Search Row -->
+                                <div class="flex flex-col lg:flex-row gap-4">
+                                    <div class="flex-1">
+                                        <div class="relative group">
+                                            <input type="text" id="userSearch" placeholder="جستجو بر اساس نام، ایمیل، شرکت..." 
+                                                   class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-lg group-hover:border-gray-300">
+                                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors"></i>
+                                            <button id="clearSearch" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors hidden" onclick="clearUserSearch()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-3">
+                                        <button id="advancedSearchToggle" onclick="toggleAdvancedSearch()" class="px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 flex items-center gap-2">
+                                            <i class="fas fa-sliders-h"></i>
+                                            <span class="hidden sm:inline">جستجوی پیشرفته</span>
+                                        </button>
+                                        <button onclick="performUserSearch()" class="px-6 py-4 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl">
+                                            <i class="fas fa-search"></i>
+                                            <span class="hidden sm:inline">جستجو</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Advanced Search Panel -->
+                                <div id="advancedSearchPanel" class="hidden bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">نوع کاربر</label>
+                                            <select id="userTypeFilter" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                                <option value="">همه انواع</option>
+                                                <option value="employer">کارفرما</option>
+                                                <option value="freelancer">فریلنسر</option>
+                                                <option value="admin">مدیر</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">مرتب‌سازی</label>
+                                            <select id="userSortBy" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                                <option value="created_at_desc">جدیدترین</option>
+                                                <option value="created_at_asc">قدیمی‌ترین</option>
+                                                <option value="name_asc">نام (الف-ی)</option>
+                                                <option value="name_desc">نام (ی-الف)</option>
+                                                <option value="email_asc">ایمیل (الف-ی)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">تعداد نمایش</label>
+                                            <select id="userPerPage" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                                <option value="12">12 کاربر</option>
+                                                <option value="24">24 کاربر</option>
+                                                <option value="48">48 کاربر</option>
+                                                <option value="all">همه</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">نمایش</label>
+                                            <div class="flex gap-2">
+                                                <button id="gridViewBtn" onclick="setUserView('grid')" class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-xl transition-all">
+                                                    <i class="fas fa-th"></i>
+                                                </button>
+                                                <button id="listViewBtn" onclick="setUserView('list')" class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl transition-all">
+                                                    <i class="fas fa-list"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <button onclick="resetUserFilters()" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                                            <i class="fas fa-undo ml-1"></i>
+                                            بازنشانی فیلترها
+                                        </button>
+                                        <div class="text-sm text-gray-600">
+                                            <span id="userResultCount">0</span> کاربر یافت شد
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quick Filter Tags -->
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="quickFilterUsers('all')" class="quick-filter-tag active" data-filter="all">
+                                        <i class="fas fa-users ml-1"></i>
+                                        همه کاربران
+                                    </button>
+                                    <button onclick="quickFilterUsers('employer')" class="quick-filter-tag" data-filter="employer">
+                                        <i class="fas fa-briefcase ml-1"></i>
+                                        کارفرمایان
+                                    </button>
+                                    <button onclick="quickFilterUsers('freelancer')" class="quick-filter-tag" data-filter="freelancer">
+                                        <i class="fas fa-user ml-1"></i>
+                                        فریلنسرها
+                                    </button>
+                                    <button onclick="quickFilterUsers('admin')" class="quick-filter-tag" data-filter="admin">
+                                        <i class="fas fa-shield-alt ml-1"></i>
+                                        مدیران
+                                    </button>
+                                    <button onclick="quickFilterUsers('recent')" class="quick-filter-tag" data-filter="recent">
+                                        <i class="fas fa-clock ml-1"></i>
+                                        عضویت اخیر
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Search Loading Indicator -->
+                            <div id="searchLoading" class="hidden text-center py-4 mb-4">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                                <p class="text-sm text-gray-600">در حال جستجو...</p>
+                            </div>
+                            
+                            <!-- Result Count and View Controls -->
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center space-x-4 space-x-reverse">
+                                    <span id="userResultCount" class="text-sm text-gray-600 font-medium">در حال بارگذاری...</span>
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <span class="text-sm text-gray-600">نمایش:</span>
+                                        <select id="itemsPerPage" class="text-sm border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="6">6</option>
+                                            <option value="12" selected>12</option>
+                                            <option value="24">24</option>
+                                            <option value="48">48</option>
+                                        </select>
+                                        <span class="text-sm text-gray-600">در صفحه</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <button id="gridViewBtn" class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-all duration-200 active" title="نمایش شبکه‌ای">
+                                        <i class="fas fa-th text-gray-600"></i>
+                                    </button>
+                                    <button id="listViewBtn" class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-all duration-200" title="نمایش فهرستی">
+                                        <i class="fas fa-list text-gray-600"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Users Cards Grid -->
+                            <div id="usersTable" class="grid gap-4">
+                                <!-- Loading State -->
+                                <div class="text-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                    <p class="text-gray-600">در حال بارگذاری کاربران...</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <div id="usersPagination" class="mt-8"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Jobs Section -->
+                <div id="jobs-section" class="content-section">
+                    <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-500/10 to-blue-500/10 p-6 border-b border-white/20">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-3 space-x-reverse">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-briefcase text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800">مدیریت آگهی‌ها</h3>
+                                        <p class="text-sm text-gray-500">مدیریت فرصت‌های شغلی</p>
+                                    </div>
+                                </div>
+                                <button onclick="showAddJobModal()" class="btn-success text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 card-hover">
+                                    <i class="fas fa-plus ml-2"></i>افزودن آگهی
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Enhanced Search and Filter Bar -->
+                            <div class="mb-8 space-y-4">
+                                <!-- Main Search Row -->
+                                <div class="flex flex-col lg:flex-row gap-4">
+                                    <div class="flex-1">
+                                        <div class="relative group">
+                                            <input type="text" id="jobSearch" placeholder="جستجو در عنوان، توضیحات یا نام کارفرما..." 
+                                                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all group-hover:border-green-300">
+                                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-green-500 transition-colors"></i>
+                                            <button id="clearJobSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" style="display: none;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                
+
+                                
+                                <!-- Quick Status Filter Tags -->
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="applyJobStatusFilter('all')" class="job-status-filter-tag active" data-status="all">
+                                        <i class="fas fa-list ml-1"></i>
+                                        همه وضعیت‌ها
+                                    </button>
+                                    <button onclick="applyJobStatusFilter('active')" class="job-status-filter-tag" data-status="active">
+                                        <i class="fas fa-play-circle ml-1"></i>
+                                        فعال
+                                    </button>
+                                    <button onclick="applyJobStatusFilter('completed')" class="job-status-filter-tag" data-status="completed">
+                                        <i class="fas fa-check-circle ml-1"></i>
+                                        تکمیل شده
+                                    </button>
+                                    <button onclick="applyJobStatusFilter('cancelled')" class="job-status-filter-tag" data-status="cancelled">
+                                        <i class="fas fa-times-circle ml-1"></i>
+                                        لغو شده
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Search Loading Indicator -->
+                            <div id="jobSearchLoading" class="hidden text-center py-4 mb-4">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mx-auto mb-2"></div>
+                                <p class="text-sm text-gray-600">در حال جستجو...</p>
+                            </div>
+                            
+                            <!-- Result Count and View Controls -->
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center space-x-4 space-x-reverse">
+                                    <span id="jobResultCount" class="text-sm text-gray-600 font-medium">در حال بارگذاری...</span>
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <span class="text-sm text-gray-600">نمایش:</span>
+                                        <select id="jobItemsPerPage" class="text-sm border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                            <option value="6">6</option>
+                                            <option value="12" selected>12</option>
+                                            <option value="24">24</option>
+                                            <option value="48">48</option>
+                                        </select>
+                                        <span class="text-sm text-gray-600">در صفحه</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 space-x-reverse">
+                                    <span id="jobResultCount" class="text-sm text-gray-600 font-medium">
+                                        <i class="fas fa-info-circle ml-1"></i>
+                                        در حال بارگذاری...
+                                    </span>
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <span class="text-sm text-gray-600">نمایش:</span>
+                                        <div class="flex bg-gray-100 rounded-lg p-1">
+                                            <button id="jobGridViewBtn" class="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-white text-gray-900 shadow-sm" title="نمایش شبکه‌ای">
+                                                <i class="fas fa-th ml-1"></i>شبکه‌ای
+                                            </button>
+                                            <button id="jobListViewBtn" class="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-900" title="نمایش فهرستی">
+                                                <i class="fas fa-list ml-1"></i>لیستی
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Job Results Display -->
+                            <div id="jobsTable" class="grid gap-4">
+                                <!-- Loading State -->
+                                <div class="text-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+                                    <p class="text-gray-600">در حال بارگذاری آگهی‌ها...</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <div id="jobsPagination" class="mt-8"></div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                
+                <!-- Enhanced Requests Section -->
+                <div id="requests-section" class="content-section">
+                    <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden">
+                        <div class="bg-gradient-to-r from-orange-500/10 to-red-500/10 p-6 border-b border-white/20">
+                            <div class="flex items-center space-x-3 space-x-reverse">
+                                <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-handshake text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">مدیریت درخواست‌ها</h3>
+                                    <p class="text-sm text-gray-500">نظارت بر درخواست‌های همکاری</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Search and Filter Bar -->
+                            <div class="mb-6 flex flex-col sm:flex-row gap-4">
+                                <div class="flex-1">
+                                    <div class="relative">
+                                        <input type="text" id="requestSearch" placeholder="جستجو در درخواست‌ها..." 
+                                               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <select id="requestStatusFilter" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                        <option value="">همه وضعیت‌ها</option>
+                                        <option value="pending">در انتظار</option>
+                                        <option value="accepted">پذیرفته شده</option>
+                                        <option value="rejected">رد شده</option>
+                                    </select>
+                                    <button onclick="exportRequests()" class="px-4 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Requests Cards Grid -->
+                            <div id="requestsTable" class="grid gap-4">
+                                <!-- Loading State -->
+                                <div class="flex items-center justify-center py-12 col-span-full">
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <div class="loading-spinner"></div>
+                                        <span class="text-gray-500 font-medium">در حال بارگیری داده‌ها...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Messages Section -->
+                <div id="messages-section" class="content-section">
+                    <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden">
+                        <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-6 border-b border-white/20">
+                            <div class="flex items-center space-x-3 space-x-reverse">
+                                <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">مدیریت پیام‌ها</h3>
+                                    <p class="text-sm text-gray-500">نظارت بر ارتباطات سیستم</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Search and Filter Bar -->
+                            <div class="mb-6 flex flex-col sm:flex-row gap-4">
+                                <div class="flex-1">
+                                    <div class="relative">
+                                        <input type="text" id="messageSearch" placeholder="جستجو در پیام‌ها..." 
+                                               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <select id="messageStatusFilter" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="">همه پیام‌ها</option>
+                                        <option value="read">خوانده شده</option>
+                                        <option value="unread">خوانده نشده</option>
+                                    </select>
+                                    <button onclick="exportMessages()" class="px-4 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-all">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Messages Cards Grid -->
+                            <div id="messagesTable" class="grid gap-4">
+                                <!-- Loading State -->
+                                <div class="flex items-center justify-center py-12 col-span-full">
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <div class="loading-spinner"></div>
+                                        <span class="text-gray-500 font-medium">در حال بارگیری داده‌ها...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Footer -->
+        <footer class="mt-16 glass-effect border-t border-white/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center md:text-right">
+                        <div class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse mb-3">
+                            <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-white text-sm"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800">پنل مدیریت</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">سیستم مدیریت جامع پلتفرم فریلنسینگ</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <h4 class="font-semibold text-gray-800 mb-3">آمار سریع</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="bg-white/50 rounded-lg p-3">
+                                <div class="font-bold text-blue-600" id="footerUsers">-</div>
+                                <div class="text-gray-600">کاربر</div>
+                            </div>
+                            <div class="bg-white/50 rounded-lg p-3">
+                                <div class="font-bold text-green-600" id="footerJobs">-</div>
+                                <div class="text-gray-600">آگهی</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center md:text-left">
+                        <h4 class="font-semibold text-gray-800 mb-3">اطلاعات سیستم</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <i class="fas fa-clock text-blue-500"></i>
+                                <span>آخرین به‌روزرسانی: <span id="lastUpdate">اکنون</span></span>
+                            </div>
+                            <div class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <i class="fas fa-server text-green-500"></i>
+                                <span>وضعیت سرور: <span class="text-green-600 font-medium">آنلاین</span></span>
+                            </div>
+                            <div class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <i class="fas fa-code text-purple-500"></i>
+                                <span>نسخه: 2.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-white/20 mt-8 pt-6 text-center">
+                    <p class="text-sm text-gray-500">
+                        © 2025 پلتفرم فریلنسینگ. تمامی حقوق محفوظ است.
+                        <span class="mx-2">|</span>
+                        <span class="text-blue-600">پروژه طراحی وب</span>
+                    </p>
+                    <p class="text-sm text-gray-500 mt-2">
+                        طراحی و توسعه: <span class="text-blue-400 font-semibold">محمد واحدی</span>
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+
+    <!-- User Add Modal -->
+    <div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 id="userModalTitle" class="text-xl font-bold text-gray-900">افزودن کاربر جدید</h3>
+                    <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <form id="userForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">نام *</label>
+                        <input type="text" id="firstName" name="first_name" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">نام خانوادگی *</label>
+                        <input type="text" id="lastName" name="last_name" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">ایمیل *</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">رمز عبور *</label>
+                    <input type="password" id="password" name="password" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="userType" class="block text-sm font-medium text-gray-700 mb-2">نوع کاربر *</label>
+                        <select id="userType" name="user_type" required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <option value="">انتخاب کنید</option>
+                            <option value="employer">کارفرما</option>
+                            <option value="freelancer">فریلنسر</option>
+                            <option value="admin">مدیر</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="companyName" class="block text-sm font-medium text-gray-700 mb-2">نام شرکت</label>
+                        <input type="text" id="companyName" name="company_name" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 space-x-reverse pt-6 border-t border-gray-200">
+                    <button type="button" onclick="closeUserModal()" 
+                            class="px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+                        انصراف
+                    </button>
+                    <button type="submit" 
+                            class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all font-medium">
+                        <i class="fas fa-save ml-2"></i>
+                        ذخیره
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div id="jobDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 id="jobDetailsModalTitle" class="text-xl font-bold text-gray-900">جزئیات آگهی</h3>
+                    <button onclick="closeJobDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="jobDetailsContent" class="p-6">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Add Modal -->
+    <div id="jobModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 id="jobModalTitle" class="text-xl font-bold text-gray-900">افزودن آگهی جدید</h3>
+                    <button onclick="closeJobModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <form id="jobForm" class="p-6 space-y-6">
+                <div>
+                    <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-2">عنوان آگهی *</label>
+                    <input type="text" id="jobTitle" name="title" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+                
+                <div>
+                    <label for="jobDescription" class="block text-sm font-medium text-gray-700 mb-2">توضیحات *</label>
+                    <textarea id="jobDescription" name="description" rows="6" required 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="budgetType" class="block text-sm font-medium text-gray-700 mb-2">نوع بودجه *</label>
+                        <select id="budgetType" name="budget_type" required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <option value="">انتخاب کنید</option>
+                            <option value="fixed">مبلغ ثابت</option>
+                            <option value="range">محدوده قیمت</option>
+                            <option value="negotiable">قابل مذاکره</option>
+                        </select>
+                    </div>
+                    
+                    <div id="budgetMinField" class="hidden">
+                        <label for="budgetMin" class="block text-sm font-medium text-gray-700 mb-2">حداقل بودجه (تومان)</label>
+                        <input type="number" id="budgetMin" name="budget_min" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    
+                    <div id="budgetMaxField" class="hidden">
+                        <label for="budgetMax" class="block text-sm font-medium text-gray-700 mb-2">حداکثر بودجه (تومان)</label>
+                        <input type="number" id="budgetMax" name="budget_max" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="jobUserId" class="block text-sm font-medium text-gray-700 mb-2">کارفرما *</label>
+                    <select id="jobUserId" name="user_id" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <option value="">انتخاب کارفرما</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end space-x-3 space-x-reverse pt-6 border-t border-gray-200">
+                    <button type="button" onclick="closeJobModal()" 
+                            class="px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+                        انصراف
+                    </button>
+                    <button type="submit" 
+                            class="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-xl hover:from-green-600 hover:to-blue-700 transition-all font-medium">
+                        <i class="fas fa-save ml-2"></i>
+                        ذخیره
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+    <script src="admin-dashboard-search-enhanced.js"></script>
+    <script src="admin-dashboard-search-render.js"></script>
+    <script src="admin-dashboard-jobs-search.js"></script>
+    <script src="admin-dashboard-jobs-render.js"></script>
+    <script src="admin-dashboard-integration.js"></script>
+</body>
+    <!-- Enhanced JavaScript for animations and interactions -->
+    <script>
+        // Add smooth animations and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update footer stats when main stats load
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.target.id === 'totalUsers' && mutation.target.textContent !== '-') {
+                        document.getElementById('footerUsers').textContent = mutation.target.textContent;
+                    }
+                    if (mutation.target.id === 'totalJobs' && mutation.target.textContent !== '-') {
+                        document.getElementById('footerJobs').textContent = mutation.target.textContent;
+                    }
+                });
+            });
+            
+            observer.observe(document.getElementById('totalUsers'), { childList: true, subtree: true });
+            observer.observe(document.getElementById('totalJobs'), { childList: true, subtree: true });
+            
+            // Update last update time
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('fa-IR');
+                document.getElementById('lastUpdate').textContent = timeString;
+            }
+            
+            updateTime();
+            setInterval(updateTime, 60000); // Update every minute
+            
+            // Add hover effects to table rows
+            document.addEventListener('mouseenter', function(e) {
+                if (e.target.closest('tbody tr') && !e.target.closest('tbody tr').classList.contains('animate-pulse')) {
+                    e.target.closest('tbody tr').classList.add('table-row');
+                }
+            }, true);
+            
+            // Add loading state management
+            window.showLoading = function(tableId) {
+                const table = document.getElementById(tableId);
+                if (table) {
+                    table.innerHTML = `
+                        <tr class="animate-pulse">
+                            <td colspan="6" class="text-center py-12">
+                                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                                    <div class="loading-spinner"></div>
+                                    <span class="text-gray-500 font-medium">در حال بارگیری داده‌ها...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            };
+            
+            // Enhanced tab switching with animations
+            window.showSectionEnhanced = function(sectionName) {
+                // Hide all sections with fade out
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.style.opacity = '0';
+                    setTimeout(() => {
+                        section.classList.remove('active');
+                    }, 150);
+                });
+                
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.transform = '';
+                    btn.style.boxShadow = '';
+                });
+                
+                // Show selected section with fade in
+                setTimeout(() => {
+                    const targetSection = document.getElementById(sectionName + '-section');
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                        targetSection.style.opacity = '1';
+                    }
+                    
+                    // Update active tab
+                    const activeBtn = event.target;
+                    activeBtn.classList.add('active');
+                }, 150);
+                
+                // Load section data if needed
+                if (typeof loadSectionData === 'function') {
+                    loadSectionData(sectionName);
+                }
+            };
+        });
+    </script>
+</body>
+</html>

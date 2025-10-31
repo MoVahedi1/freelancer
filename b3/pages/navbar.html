@@ -1,0 +1,76 @@
+<!-- Navigation Component -->
+<nav class="bg-white/90 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <a href="index.html" class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                            </svg>
+                        </div>
+                        <span class="mr-2 text-xl font-bold gradient-text">فریلنس پرو</span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="mr-10 flex items-baseline space-x-4 space-x-reverse">
+                        <a href="jobs.html" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">آگهی‌های شغلی</a>
+                        <a href="freelancer-skills.html" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">مهارت‌ها</a>
+                        <a href="post-job.html" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">ثبت آگهی</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <div class="mr-4 flex items-center md:mr-6">
+                    <div id="navAuthButtons" class="flex space-x-2 space-x-reverse">
+                        <!-- Auth buttons will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Navigation authentication state management
+function updateNavAuth() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const navAuthButtons = document.getElementById('navAuthButtons');
+    
+    if (token && user.user_id) {
+        navAuthButtons.innerHTML = `
+            <a href="dashboard.html" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium">
+                داشبورد
+            </a>
+            <button onclick="logout()" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                خروج
+            </button>
+        `;
+    } else {
+        navAuthButtons.innerHTML = `
+            <a href="login.html" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">ورود</a>
+            <a href="register.html" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium">ثبت‌نام</a>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+// Initialize navigation on page load
+document.addEventListener('DOMContentLoaded', updateNavAuth);
+</script>
+
+<style>
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چت پروژه - کارپاچینو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { font-size: 14px; }
+        body { font-family: 'Vazir', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .file-upload-area {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background-color: #f7fafc;
+        }
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <a href="index.html" class="flex items-center text-blue-600 hover:text-blue-800">
+                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        خانه
+                    </a>
+                    <a href="dashboard.html" class="flex items-center text-blue-600 hover:text-blue-800">
+                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                        بازگشت به داشبورد
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    <div id="projectInfo" class="text-center">
+                        <h1 class="text-lg font-semibold text-gray-900">چت پروژه</h1>
+                        <p id="projectTitle" class="text-sm text-gray-600"></p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div id="projectStatus" class="flex items-center">
+                        <!-- وضعیت پروژه اینجا نمایش داده می‌شود -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Project Info Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="card rounded-xl p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">اطلاعات پروژه</h3>
+                    <div id="projectDetails" class="space-y-3">
+                        <!-- جزئیات پروژه اینجا نمایش داده می‌شود -->
+                    </div>
+                </div>
+
+                <!-- Project Actions -->
+                <div class="card rounded-xl p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">عملیات پروژه</h3>
+                    <div id="projectActions" class="space-y-3">
+                        <!-- دکمه‌های عملیات پروژه اینجا نمایش داده می‌شود -->
+                    </div>
+                </div>
+
+                <!-- File Deliverables -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">فایل‌های تحویلی</h3>
+                    <div id="deliverablesList" class="space-y-2">
+                        <!-- فایل‌های تحویلی اینجا نمایش داده می‌شود -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="lg:col-span-3">
+                <div class="card rounded-xl h-[600px] flex flex-col">
+                    <!-- Chat Header -->
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div id="participantInfo" class="flex items-center">
+                                    <!-- اطلاعات شرکت‌کنندگان اینجا نمایش داده می‌شود -->
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <span id="onlineStatus" class="status-indicator w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-sm text-gray-600">آنلاین</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                        <!-- پیام‌های چت اینجا نمایش داده می‌شود -->
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="p-4 border-t border-gray-200">
+                        <form id="chatForm" class="flex space-x-2 space-x-reverse">
+                            <div class="flex-1">
+                                <div class="flex">
+                                    <input type="text" id="messageInput" placeholder="پیام خود را بنویسید..." 
+                                           class="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="button" onclick="toggleFileUpload()" 
+                                            class="bg-gray-100 border-t border-b border-gray-300 px-3 py-2 hover:bg-gray-200">
+                                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-l-lg hover:bg-blue-600">
+                                        ارسال
+                                    </button>
+                                </div>
+                                
+                                <!-- File Upload Area -->
+                                <div id="fileUploadArea" class="hidden mt-2 file-upload-area rounded-lg p-4 text-center">
+                                    <input type="file" id="fileInput" multiple class="hidden" accept="*/*">
+                                    <div onclick="document.getElementById('fileInput').click()" class="cursor-pointer">
+                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-600">فایل خود را انتخاب کنید یا اینجا بکشید</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">پلتفرم فریلنسری</h4>
+                    <p class="text-gray-300">بهترین پلتفرم برای اتصال فریلنسرها و کارفرمایان در ایران</p>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">خدمات</h5>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>برنامه‌نویسی</li>
+                        <li>طراحی گرافیک</li>
+                        <li>نویسندگی</li>
+                        <li>ترجمه</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">تماس</h5>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>ایمیل: info@freelance.ir</li>
+                        <li>تلفن: 021-12345678</li>
+                        <li>آدرس: تهران، ایران</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 پلتفرم فریلنسری. تمامی حقوق محفوظ است.</p>
+                <p class="mt-2 text-sm">طراحی و توسعه: <span class="text-blue-400 font-semibold">محمد واحدی</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Project Completion Modal -->
+    <div id="completionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">تکمیل پروژه</h3>
+                <button onclick="closeCompletionModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="completionForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">پیام نهایی:</label>
+                    <textarea id="completionMessage" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="پیام نهایی خود را برای کارفرما بنویسید..."></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">فایل‌های نهایی:</label>
+                    <input type="file" id="finalFiles" multiple class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                </div>
+                <div class="flex justify-end space-x-3 space-x-reverse">
+                    <button type="button" onclick="closeCompletionModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        انصراف
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        تکمیل پروژه
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentProject = null;
+        let currentUser = null;
+        let chatMessages = [];
+        let projectStatus = 'ongoing'; // ongoing, completed, delivered, archived
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadProject();
+            initializeChat();
+        });
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user.user_id) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            currentUser = user;
+            return true;
+        }
+
+        async function loadProject() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('project_id');
+            
+            if (!projectId) {
+                alert('شناسه پروژه یافت نشد');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`../backend/api/project-chat.php?project_id=${projectId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentProject = data.project;
+                    displayProjectInfo();
+                    displayProjectActions();
+                } else {
+                    alert('خطا در بارگذاری اطلاعات پروژه');
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('خطا در بارگذاری پروژه:', error);
+                alert('خطا در ارتباط با سرور');
+            }
+        }
+
+        function displayProjectInfo() {
+            document.getElementById('projectTitle').textContent = currentProject.job_title;
+            
+            const projectDetails = document.getElementById('projectDetails');
+            projectDetails.innerHTML = `
+                <div class="text-sm">
+                    <p><strong>عنوان:</strong> ${currentProject.job_title}</p>
+                    <p><strong>قیمت:</strong> ${currentProject.proposed_price?.toLocaleString()} تومان</p>
+                    <p><strong>شروع:</strong> ${formatDate(currentProject.accepted_at)}</p>
+                    <p><strong>وضعیت:</strong> <span class="px-2 py-1 rounded text-xs ${getStatusColor(currentProject.status)}">${getStatusText(currentProject.status)}</span></p>
+                </div>
+            `;
+
+            const participantInfo = document.getElementById('participantInfo');
+            const otherParty = currentUser.user_type === 'freelancer' ? currentProject.employer_name : currentProject.freelancer_name;
+            participantInfo.innerHTML = `
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium ml-3">
+                    ${otherParty.charAt(0)}
+                </div>
+                <span class="font-medium">${otherParty}</span>
+            `;
+        }
+
+        function displayProjectActions() {
+            const projectActions = document.getElementById('projectActions');
+            let actions = '';
+
+            if (currentUser.user_type === 'freelancer' && currentProject.status === 'ongoing') {
+                actions += `
+                    <button onclick="markProjectComplete()" class="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                        پروژه را تمام کردم
+                    </button>
+                `;
+            } else if (currentUser.user_type === 'employer' && currentProject.status === 'completed') {
+                actions += `
+                    <button onclick="approveProject()" class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mb-2">
+                        تایید و تحویل
+                    </button>
+                    <button onclick="requestRevision()" class="w-full bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+                        درخواست اصلاح
+                    </button>
+                `;
+            }
+
+            projectActions.innerHTML = actions;
+        }
+
+        async function initializeChat() {
+            await loadChatMessages();
+            scrollToBottom();
+            
+            // Set up form submission
+            document.getElementById('chatForm').addEventListener('submit', sendMessage);
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+            
+            // Auto-refresh messages every 5 seconds
+            setInterval(loadChatMessages, 5000);
+        }
+
+        async function loadChatMessages() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`../backend/api/project-chat.php?project_id=${currentProject.request_id}&action=messages`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    chatMessages = data.messages || [];
+                    displayChatMessages();
+                }
+            } catch (error) {
+                console.error('خطا در بارگذاری پیام‌ها:', error);
+            }
+        }
+
+        function displayChatMessages() {
+            const chatContainer = document.getElementById('chatMessages');
+            chatContainer.innerHTML = chatMessages.map(message => {
+                const isOwn = message.sender_id == currentUser.user_id;
+                return `
+                    <div class="chat-message flex ${isOwn ? 'justify-end' : 'justify-start'}">
+                        <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                            isOwn 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-gray-200 text-gray-900'
+                        }">
+                            <p class="text-sm">${message.content}</p>
+                            ${message.file_url ? `
+                                <div class="mt-2">
+                                    <a href="${message.file_url}" target="_blank" class="text-xs underline">
+                                        📎 ${message.file_name}
+                                    </a>
+                                </div>
+                            ` : ''}
+                            <p class="text-xs mt-1 opacity-75">${formatTime(message.created_at)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+            
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+            
+            if (!content) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('../backend/api/project-chat.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        project_id: currentProject.request_id,
+                        content: content,
+                        message_type: 'text'
+                    })
+                });
+
+                if (response.ok) {
+                    messageInput.value = '';
+                    await loadChatMessages();
+                    scrollToBottom();
+                } else {
+                    alert('خطا در ارسال پیام');
+                }
+            } catch (error) {
+                console.error('خطا در ارسال پیام:', error);
+                alert('خطا در ارتباط با سرور');
+            }
+        }
+
+        function toggleFileUpload() {
+            const fileArea = document.getElementById('fileUploadArea');
+            fileArea.classList.toggle('hidden');
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                uploadFiles(files);
+            }
+        }
+
+        async function uploadFiles(files) {
+            const formData = new FormData();
+            formData.append('project_id', currentProject.request_id);
+            
+            for (let file of files) {
+                formData.append('files[]', file);
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('../backend/api/project-files.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    await loadChatMessages();
+                    document.getElementById('fileInput').value = '';
+                    toggleFileUpload();
+                } else {
+                    alert('خطا در آپلود فایل');
+                }
+            } catch (error) {
+                console.error('خطا در آپلود فایل:', error);
+                alert('خطا در ارتباط با سرور');
+            }
+        }
+
+        function markProjectComplete() {
+            document.getElementById('completionModal').classList.remove('hidden');
+            document.getElementById('completionModal').classList.add('flex');
+        }
+
+        function closeCompletionModal() {
+            document.getElementById('completionModal').classList.add('hidden');
+            document.getElementById('completionModal').classList.remove('flex');
+        }
+
+        async function approveProject() {
+            if (!confirm('آیا از تایید و تحویل این پروژه مطمئن هستید؟')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('../backend/api/project-status.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        project_id: currentProject.request_id,
+                        status: 'delivered',
+                        action: 'approve'
+                    })
+                });
+
+                if (response.ok) {
+                    alert('پروژه با موفقیت تایید و تحویل شد');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('خطا در تایید پروژه');
+                }
+            } catch (error) {
+                console.error('خطا در تایید پروژه:', error);
+                alert('خطا در ارتباط با سرور');
+            }
+        }
+
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatMessages');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('fa-IR');
+        }
+
+        function formatTime(dateString) {
+            return new Date(dateString).toLocaleTimeString('fa-IR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'ongoing': return 'bg-blue-100 text-blue-800';
+                case 'completed': return 'bg-yellow-100 text-yellow-800';
+                case 'delivered': return 'bg-green-100 text-green-800';
+                case 'archived': return 'bg-gray-100 text-gray-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'ongoing': return 'در حال انجام';
+                case 'completed': return 'تکمیل شده';
+                case 'delivered': return 'تحویل داده شده';
+                case 'archived': return 'بایگانی شده';
+                default: return 'نامشخص';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت آگهی - پلتفرم فریلنسری</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { font-size: 14px; }
+        @import url('https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Vazir', Tahoma, Arial, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">ثبت آگهی جدید</h1>
+                
+                <div id="alert" class="hidden mb-4 p-4 rounded-lg"></div>
+                
+                <form id="jobForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">عنوان آگهی</label>
+                        <input type="text" id="title" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">توضیحات</label>
+                        <textarea id="description" rows="6" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">نوع بودجه</label>
+                            <select id="budgetType" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="range">بازه‌ای</option>
+                                <option value="negotiable">توافقی</option>
+                            </select>
+                        </div>
+                        
+                        <div id="budgetMinField" class="hidden">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">حداقل بودجه (تومان)</label>
+                            <input type="number" id="budgetMin" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div id="budgetMaxField" class="hidden">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">حداکثر بودجه (تومان)</label>
+                            <input type="number" id="budgetMax" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-4">مهارت‌های مورد نیاز</h3>
+                        <div id="requiredSkillsContainer">
+                            <!-- مهارت‌های مورد نیاز اینجا اضافه می‌شوند -->
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="button" id="addRequiredSkillBtn" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                افزودن مهارت مورد نیاز
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        ثبت آگهی
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <a href="jobs.html" class="text-blue-500 hover:text-blue-700">مشاهده آگهی‌ها</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">پلتفرم فریلنسری</h4>
+                    <p class="text-gray-300">بهترین پلتفرم برای اتصال فریلنسرها و کارفرمایان در ایران</p>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">خدمات</h5>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>برنامه‌نویسی</li>
+                        <li>طراحی گرافیک</li>
+                        <li>نویسندگی</li>
+                        <li>ترجمه</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">تماس</h5>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>ایمیل: info@freelance.ir</li>
+                        <li>تلفن: 021-12345678</li>
+                        <li>آدرس: تهران، ایران</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2025 پلتفرم فریلنسری. تمامی حقوق محفوظ است.</p>
+                <p class="mt-2 text-sm">طراحی و توسعه: <span class="text-blue-400 font-semibold">محمد واحدی</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let jobClasses = [];
+        let skillCounter = 0;
+
+        const budgetTypeSelect = document.getElementById('budgetType');
+        const budgetMinField = document.getElementById('budgetMinField');
+        const budgetMaxField = document.getElementById('budgetMaxField');
+        const requiredSkillsContainer = document.getElementById('requiredSkillsContainer');
+        const addRequiredSkillBtn = document.getElementById('addRequiredSkillBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const alertDiv = document.getElementById('alert');
+
+        // بررسی احراز هویت
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showAlert('لطفاً ابتدا وارد شوید', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return false;
+            }
+            return true;
+        }
+
+        // نمایش پیام
+        function showAlert(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-100 text-green-700 border border-green-200',
+                error: 'bg-red-100 text-red-700 border border-red-200',
+                info: 'bg-blue-100 text-blue-700 border border-blue-200'
+            };
+            
+            alertDiv.className = `mb-4 p-4 rounded-lg ${colors[type]}`;
+            alertDiv.innerHTML = `
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">${message}</p>
+                    </div>
+                </div>
+            `;
+            alertDiv.classList.remove('hidden');
+            
+            // پنهان کردن پیام بعد از 5 ثانیه
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // تغییر نوع بودجه
+        budgetTypeSelect.addEventListener('change', function() {
+            console.log('Budget type changed to:', this.value);
+            if (this.value === 'range') {
+                budgetMinField.classList.remove('hidden');
+                budgetMaxField.classList.remove('hidden');
+                document.getElementById('budgetMin').required = true;
+                document.getElementById('budgetMax').required = true;
+            } else {
+                budgetMinField.classList.add('hidden');
+                budgetMaxField.classList.add('hidden');
+                document.getElementById('budgetMin').required = false;
+                document.getElementById('budgetMax').required = false;
+                // پاک کردن مقادیر بودجه برای نوع توافقی
+                document.getElementById('budgetMin').value = '';
+                document.getElementById('budgetMax').value = '';
+            }
+        });
+
+        // دریافت کلاس‌های شغلی
+        async function fetchJobClasses() {
+            try {
+                console.log('در حال دریافت کلاس‌های شغلی...');
+                const response = await fetch('../backend/api/freelancer/job-classes.php');
+                console.log('Job Classes Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('Job Classes Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Job Classes Parsed Data:', data);
+                    
+                    if (response.ok && data.data) {
+                        jobClasses = data.data;
+                        showAlert('کلاس‌های شغلی با موفقیت دریافت شدند', 'success');
+                    } else {
+                        showAlert('خطا در دریافت کلاس‌های شغلی: ' + (data.message || 'خطای نامشخص'), 'error');
+                    }
+                } catch (jsonError) {
+                    console.error('Job Classes JSON Parse Error:', jsonError);
+                    showAlert('خطا در پردازش پاسخ سرور: ' + text.substring(0, 200), 'error');
+                }
+            } catch (error) {
+                console.error('Job Classes Network Error:', error);
+                showAlert('خطا در ارتباط با سرور: ' + error.message, 'error');
+            }
+        }
+
+        // دریافت زیرکلاس‌ها
+        async function fetchSubClasses(classId) {
+            try {
+                console.log('در حال دریافت زیرکلاس‌ها برای class_id:', classId);
+                const response = await fetch(`../backend/api/freelancer/job-subclasses.php?class_id=${classId}`);
+                console.log('Subclasses Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('Subclasses Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Subclasses Parsed Data:', data);
+                    
+                    if (response.ok && data.data) {
+                        return data.data;
+                    } else {
+                        console.warn('No subclasses found or error:', data.message);
+                        return [];
+                    }
+                } catch (jsonError) {
+                    console.error('Subclasses JSON Parse Error:', jsonError);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Subclasses Network Error:', error);
+                return [];
+            }
+        }
+
+        // ایجاد عنصر مهارت مورد نیاز
+        function createRequiredSkillElement() {
+            const skillId = skillCounter++;
+            const skillDiv = document.createElement('div');
+            skillDiv.className = 'border p-4 rounded-lg mb-4';
+            skillDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-semibold">مهارت ${skillId + 1}</h4>
+                    <button type="button" onclick="removeRequiredSkill(${skillId})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                        حذف
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">کلاس شغلی</label>
+                        <select class="required-skill-class w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">انتخاب کنید</option>
+                            ${jobClasses.map(cls => `<option value="${cls.class_id}">${cls.class_name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">زیرکلاس (اختیاری)</label>
+                        <select class="required-skill-subclass w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">انتخاب کنید</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">سطح تسلط</label>
+                        <select class="required-skill-level w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="beginner">مبتدی</option>
+                            <option value="intermediate">متوسط</option>
+                            <option value="expert">حرفه‌ای</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            // اضافه کردن event listener برای تغییر کلاس
+            const classSelect = skillDiv.querySelector('.required-skill-class');
+            const subclassSelect = skillDiv.querySelector('.required-skill-subclass');
+            
+            classSelect.addEventListener('change', async function() {
+                if (this.value) {
+                    console.log('Class changed to:', this.value);
+                    const subclasses = await fetchSubClasses(this.value);
+                    console.log('Fetched subclasses:', subclasses);
+                    
+                    subclassSelect.innerHTML = '<option value="">انتخاب کنید</option>' + 
+                        subclasses.map(sub => `<option value="${sub.subclass_id}">${sub.subclass_name}</option>`).join('');
+                } else {
+                    subclassSelect.innerHTML = '<option value="">انتخاب کنید</option>';
+                }
+            });
+
+            return skillDiv;
+        }
+
+        // حذف مهارت مورد نیاز
+        function removeRequiredSkill(skillId) {
+            const skillElements = requiredSkillsContainer.querySelectorAll('.border');
+            if (skillElements.length > 1) {
+                skillElements[skillId].remove();
+                updateRequiredSkillNumbers();
+            }
+        }
+
+        // به‌روزرسانی شماره مهارت‌های مورد نیاز
+        function updateRequiredSkillNumbers() {
+            const skillElements = requiredSkillsContainer.querySelectorAll('.border');
+            skillElements.forEach((element, index) => {
+                const title = element.querySelector('h4');
+                title.textContent = `مهارت ${index + 1}`;
+            });
+        }
+
+        // افزودن مهارت مورد نیاز
+        addRequiredSkillBtn.addEventListener('click', function() {
+            requiredSkillsContainer.appendChild(createRequiredSkillElement());
+        });
+
+        // ثبت آگهی
+        document.getElementById('jobForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            console.log('Form submission started');
+            
+            if (!checkAuth()) {
+                console.log('Authentication failed');
+                return;
+            }
+            
+            // جمع‌آوری داده‌های فرم
+            const titleValue = document.getElementById('title').value.trim();
+            const descriptionValue = document.getElementById('description').value.trim();
+            const budgetTypeValue = budgetTypeSelect.value;
+            
+            console.log('Form values:', {
+                title: titleValue,
+                description: descriptionValue.substring(0, 50) + '...',
+                budget_type: budgetTypeValue
+            });
+            
+            const formData = {
+                title: titleValue,
+                description: descriptionValue,
+                budget_type: budgetTypeValue
+            };
+            
+            // تنظیم بودجه بر اساس نوع
+            if (budgetTypeValue === 'range') {
+                const budgetMinValue = document.getElementById('budgetMin').value;
+                const budgetMaxValue = document.getElementById('budgetMax').value;
+                
+                if (budgetMinValue && budgetMaxValue) {
+                    formData.budget_min = parseFloat(budgetMinValue);
+                    formData.budget_max = parseFloat(budgetMaxValue);
+                } else {
+                    formData.budget_min = null;
+                    formData.budget_max = null;
+                }
+            } else {
+                formData.budget_min = null;
+                formData.budget_max = null;
+            }
+            
+            // اعتبارسنجی داده‌ها
+            if (!formData.title || !formData.description) {
+                showAlert('لطفاً عنوان و توضیحات آگهی را تکمیل کنید', 'error');
+                return;
+            }
+            
+            if (formData.budget_type === 'range') {
+                if (!formData.budget_min || !formData.budget_max) {
+                    showAlert('لطفاً حداقل و حداکثر بودجه را وارد کنید', 'error');
+                    return;
+                }
+                
+                if (formData.budget_min >= formData.budget_max) {
+                    showAlert('حداقل بودجه باید کمتر از حداکثر بودجه باشد', 'error');
+                    return;
+                }
+            }
+            
+            // جمع‌آوری مهارت‌های مورد نیاز
+            formData.required_skills = [];
+            const skillElements = requiredSkillsContainer.querySelectorAll('.border');
+            
+            console.log('Found skill elements:', skillElements.length);
+            
+            skillElements.forEach((element, index) => {
+                const classSelect = element.querySelector('.required-skill-class');
+                const subclassSelect = element.querySelector('.required-skill-subclass');
+                const levelSelect = element.querySelector('.required-skill-level');
+                
+                if (classSelect && levelSelect) {
+                    const classId = classSelect.value;
+                    const subclassId = subclassSelect ? subclassSelect.value : null;
+                    const level = levelSelect.value;
+                    
+                    console.log(`Skill ${index + 1}:`, { classId, subclassId, level });
+                    
+                    if (classId && level) {
+                        formData.required_skills.push({
+                            class_id: parseInt(classId),
+                            subclass_id: subclassId ? parseInt(subclassId) : null,
+                            proficiency_level: level
+                        });
+                    }
+                }
+            });
+            
+            console.log('Final form data:', formData);
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'در حال ثبت...';
+            
+            try {
+                const token = localStorage.getItem('token');
+                
+                // بررسی اعتبار توکن
+                if (!token) {
+                    showAlert('توکن احراز هویت یافت نشد. لطفاً دوباره وارد شوید.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'ثبت آگهی';
+                    return;
+                }
+                
+                console.log('Token found, length:', token.length);
+                
+                const response = await fetch('../backend/api/employer/jobs.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                console.log('Job Submit Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('Job Submit Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Job Submit Parsed Data:', data);
+                    
+                    if (response.ok) {
+                        showAlert(`آگهی شما با موفقیت ارسال شد! شماره آگهی: ${data.job_id}`, 'success');
+                        
+                        // پاک کردن فرم
+                        document.getElementById('jobForm').reset();
+                        requiredSkillsContainer.innerHTML = '';
+                        addRequiredSkillBtn.click(); // اضافه کردن اولین مهارت
+                        
+                        // تغییر دکمه
+                        submitBtn.textContent = 'آگهی ارسال شد!';
+                        submitBtn.className = 'w-full bg-green-500 text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500';
+                        
+                        // بازگشت به حالت عادی بعد از 3 ثانیه
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'ثبت آگهی';
+                            submitBtn.className = 'w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500';
+                        }, 3000);
+                        
+                    } else {
+                        let errorMessage = 'خطا در ثبت آگهی';
+                        if (data.message) {
+                            errorMessage += ': ' + data.message;
+                        }
+                        if (response.status === 401) {
+                            errorMessage = 'احراز هویت ناموفق. لطفاً دوباره وارد شوید.';
+                            setTimeout(() => {
+                                window.location.href = 'login.html';
+                            }, 2000);
+                        }
+                        showAlert(errorMessage, 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'ثبت آگهی';
+                    }
+                } catch (jsonError) {
+                    console.error('Job Submit JSON Parse Error:', jsonError);
+                    showAlert('خطا در پردازش پاسخ سرور: ' + text.substring(0, 200), 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'ثبت آگهی';
+                }
+            } catch (error) {
+                console.error('Job Submit Network Error:', error);
+                showAlert('خطا در ارتباط با سرور: ' + error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'ثبت آگهی';
+            }
+        });
+
+        // راه‌اندازی
+        async function init() {
+            if (!checkAuth()) return;
+            
+            console.log('Initializing post job page...');
+            await fetchJobClasses();
+            
+            // افزودن اولین مهارت مورد نیاز
+            addRequiredSkillBtn.click();
+        }
+
+        init();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود ادمین</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-shield-alt text-white text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">ورود ادمین</h1>
+            <p class="text-gray-600 mt-2">پنل مدیریت سیستم</p>
+        </div>
+        
+        <form id="adminLoginForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
+                <input type="email" id="email" name="email" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">رمز عبور</label>
+                <input type="password" id="password" name="password" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105">
+                <i class="fas fa-sign-in-alt ml-2"></i>
+                ورود
+            </button>
+        </form>
+        
+        <div id="message" class="mt-4 text-center hidden"></div>
+        
+        <div class="mt-6 text-center">
+            <a href="test_admin_connection.php" class="text-blue-600 hover:text-blue-800 text-sm">
+                تست اتصال دیتابیس
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            // Simple admin authentication (for testing)
+            if (email === 'admin@test.com' && password === 'admin123') {
+                // Create admin token
+                const adminToken = btoa(JSON.stringify({
+                    user_id: 1,
+                    user_type: 'admin',
+                    email: email,
+                    exp: Date.now() + 3600000 // 1 hour
+                }));
+                
+                // Store token
+                localStorage.setItem('admin_token', adminToken);
+                
+                // Show success message
+                messageDiv.className = 'mt-4 text-center text-green-600';
+                messageDiv.textContent = 'ورود موفقیت‌آمیز! در حال انتقال...';
+                messageDiv.classList.remove('hidden');
+                
+                // Redirect to admin dashboard
+                setTimeout(() => {
+                    window.location.href = 'pages/admin-dashboard.html';
+                }, 1000);
+            } else {
+                messageDiv.className = 'mt-4 text-center text-red-600';
+                messageDiv.textContent = 'ایمیل یا رمز عبور اشتباه است';
+                messageDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html> 

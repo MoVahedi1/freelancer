@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مهارت‌های فریلنسر - پلتفرم فریلنسری</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { font-size: 14px; }
+        @import url('https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Vazir', Tahoma, Arial, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">تعریف مهارت‌های فریلنسری</h1>
+                
+                <div id="alert" class="hidden mb-4 p-4 rounded-lg"></div>
+                
+                <div class="mb-6">
+                    <p class="text-gray-600 text-center">لطفاً مهارت‌های خود را تعریف کنید تا کارفرمایان بتوانند شما را پیدا کنند.</p>
+                </div>
+                
+                <form id="skillsForm">
+                    <div id="skillsContainer" class="mb-6">
+                        <!-- مهارت‌ها اینجا اضافه می‌شوند -->
+                    </div>
+                    
+                                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center space-x-4">
+                        <button type="button" id="addSkillBtn" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">
+                            + افزودن مهارت جدید
+                        </button>
+                        <span id="skillCounter" class="text-sm text-gray-600">0 از 10 مهارت</span>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 hidden">
+                        ثبت مهارت‌ها
+                    </button>
+                </div>
+                </form>
+                
+                <div class="text-center">
+                    <a href="jobs.html" class="text-blue-500 hover:text-blue-700">بازگشت به آگهی‌ها</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">پلتفرم فریلنسری</h4>
+                    <p class="text-gray-300">بهترین پلتفرم برای اتصال فریلنسرها و کارفرمایان در ایران</p>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">خدمات</h5>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>برنامه‌نویسی</li>
+                        <li>طراحی گرافیک</li>
+                        <li>نویسندگی</li>
+                        <li>ترجمه</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">تماس</h5>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>ایمیل: info@freelance.ir</li>
+                        <li>تلفن: 021-12345678</li>
+                        <li>آدرس: تهران، ایران</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2025 پلتفرم فریلنسری. تمامی حقوق محفوظ است.</p>
+                <p class="mt-2 text-sm">طراحی و توسعه: <span class="text-blue-400 font-semibold">محمد واحدی</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let jobClasses = [];
+        let skillCounter = 0;
+        let userSkills = [];
+        let skillElements = [];
+        
+        const skillsContainer = document.getElementById('skillsContainer');
+        const addSkillBtn = document.getElementById('addSkillBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const alertDiv = document.getElementById('alert');
+        const skillCounterSpan = document.getElementById('skillCounter');
+
+        // بررسی احراز هویت
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showAlert('لطفاً ابتدا وارد شوید', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return false;
+            }
+            return true;
+        }
+
+        // نمایش پیام
+        function showAlert(message, type = 'success') {
+            alertDiv.className = `mb-4 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`;
+            alertDiv.textContent = message;
+            alertDiv.classList.remove('hidden');
+        }
+
+        // دریافت کلاس‌های شغلی
+        async function fetchJobClasses() {
+            try {
+                console.log('در حال دریافت کلاس‌های شغلی...');
+                const response = await fetch('../backend/api/freelancer/job-classes.php');
+                console.log('Job Classes Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('Job Classes Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Job Classes Parsed Data:', data);
+                    
+                    if (response.ok && data.data) {
+                        jobClasses = data.data;
+                        showAlert('کلاس‌های شغلی با موفقیت دریافت شدند', 'success');
+                    } else {
+                        showAlert('خطا در دریافت کلاس‌های شغلی: ' + (data.message || 'خطای نامشخص'), 'error');
+                    }
+                } catch (jsonError) {
+                    console.error('Job Classes JSON Parse Error:', jsonError);
+                    showAlert('خطا در پردازش پاسخ سرور: ' + text.substring(0, 200), 'error');
+                }
+            } catch (error) {
+                console.error('Job Classes Network Error:', error);
+                showAlert('خطا در ارتباط با سرور: ' + error.message, 'error');
+            }
+        }
+
+        // دریافت زیرکلاس‌ها
+        async function fetchSubClasses(classId) {
+            try {
+                console.log('در حال دریافت زیرکلاس‌ها برای class_id:', classId);
+                const response = await fetch(`../backend/api/freelancer/job-subclasses.php?class_id=${classId}`);
+                console.log('Subclasses Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('Subclasses Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Subclasses Parsed Data:', data);
+                    
+                    if (response.ok && data.data) {
+                        return data.data;
+                    } else {
+                        console.warn('No subclasses found or error:', data.message);
+                        return [];
+                    }
+                } catch (jsonError) {
+                    console.error('Subclasses JSON Parse Error:', jsonError);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Subclasses Network Error:', error);
+                return [];
+            }
+        }
+
+        // نمایش کلاس‌های شغلی
+        function displayJobClasses() {
+            console.log('Displaying job classes:', jobClasses);
+        }
+
+        // به‌روزرسانی شمارنده مهارت‌ها
+        function updateSkillCounter() {
+            const count = skillElements.length;
+            skillCounterSpan.textContent = `${count} از 10 مهارت`;
+            
+            // غیرفعال کردن دکمه افزودن اگر به حد مجاز رسیده
+            if (count >= 10) {
+                addSkillBtn.disabled = true;
+                addSkillBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                addSkillBtn.classList.remove('hover:bg-green-600');
+            } else {
+                addSkillBtn.disabled = false;
+                addSkillBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                addSkillBtn.classList.add('hover:bg-green-600');
+            }
+        }
+
+        // ایجاد عنصر مهارت
+        function createSkillElement(skillData = null) {
+            const skillId = skillCounter++;
+            const skillDiv = document.createElement('div');
+            skillDiv.className = 'border p-4 rounded-lg mb-4';
+            skillDiv.dataset.skillId = skillData ? skillData.skill_id : null;
+            
+            skillDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">مهارت ${skillElements.length + 1}</h3>
+                    <div class="flex space-x-2">
+                        <button type="button" onclick="editSkill(${skillId})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
+                            ویرایش
+                        </button>
+                        <button type="button" onclick="removeSkill(${skillId})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                            حذف
+                        </button>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">کلاس شغلی</label>
+                        <select class="skill-class w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">انتخاب کنید</option>
+                            ${jobClasses.map(cls => `<option value="${cls.class_id}">${cls.class_name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">زیرکلاس (اختیاری)</label>
+                        <select class="skill-subclass w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">انتخاب کنید</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">سطح تسلط</label>
+                        <select class="skill-level w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="beginner">مبتدی</option>
+                            <option value="intermediate">متوسط</option>
+                            <option value="expert">حرفه‌ای</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            // اضافه کردن event listener برای تغییر کلاس
+            const classSelect = skillDiv.querySelector('.skill-class');
+            const subclassSelect = skillDiv.querySelector('.skill-subclass');
+            
+            classSelect.addEventListener('change', async function() {
+                if (this.value) {
+                    console.log('Class changed to:', this.value);
+                    const subclasses = await fetchSubClasses(this.value);
+                    console.log('Fetched subclasses:', subclasses);
+                    
+                    subclassSelect.innerHTML = '<option value="">انتخاب کنید</option>' + 
+                        subclasses.map(sub => `<option value="${sub.subclass_id}">${sub.subclass_name}</option>`).join('');
+                } else {
+                    subclassSelect.innerHTML = '<option value="">انتخاب کنید</option>';
+                }
+            });
+
+            // تنظیم مقادیر اولیه اگر داده‌ای وجود دارد
+            if (skillData) {
+                classSelect.value = skillData.class_id;
+                if (skillData.class_id) {
+                    fetchSubClasses(skillData.class_id).then(subclasses => {
+                        subclassSelect.innerHTML = '<option value="">انتخاب کنید</option>' + 
+                            subclasses.map(sub => `<option value="${sub.subclass_id}">${sub.subclass_name}</option>`).join('');
+                        if (skillData.subclass_id) {
+                            subclassSelect.value = skillData.subclass_id;
+                        }
+                    });
+                }
+                skillDiv.querySelector('.skill-level').value = skillData.proficiency_level;
+            }
+
+            return skillDiv;
+        }
+
+        // حذف مهارت
+        async function removeSkill(skillId) {
+            const skillElement = skillElements[skillId];
+            const skillIdFromData = skillElement.dataset.skillId;
+            
+            if (skillIdFromData) {
+                // حذف از سرور
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`../backend/api/freelancer/skills.php?skill_id=${skillIdFromData}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('مهارت با موفقیت حذف شد', 'success');
+                    } else {
+                        const data = await response.json();
+                        showAlert('خطا در حذف مهارت: ' + (data.message || 'خطای نامشخص'), 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error deleting skill:', error);
+                    showAlert('خطا در ارتباط با سرور', 'error');
+                    return;
+                }
+            }
+            
+            // حذف از صفحه
+            skillElement.remove();
+            skillElements.splice(skillId, 1);
+            updateSkillNumbers();
+            updateSkillCounter();
+        }
+
+        // ویرایش مهارت
+        async function editSkill(skillId) {
+            const skillElement = skillElements[skillId];
+            const skillIdFromData = skillElement.dataset.skillId;
+            
+            if (!skillIdFromData) {
+                showAlert('این مهارت هنوز در سرور ذخیره نشده است', 'error');
+                return;
+            }
+            
+            const classId = skillElement.querySelector('.skill-class').value;
+            const subclassId = skillElement.querySelector('.skill-subclass').value;
+            const level = skillElement.querySelector('.skill-level').value;
+            
+            if (!classId || !level) {
+                showAlert('لطفاً تمام فیلدهای ضروری را پر کنید', 'error');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('../backend/api/freelancer/skills.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        skill_id: parseInt(skillIdFromData),
+                        class_id: parseInt(classId),
+                        subclass_id: subclassId ? parseInt(subclassId) : null,
+                        proficiency_level: level
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('مهارت با موفقیت به‌روزرسانی شد', 'success');
+                } else {
+                    showAlert('خطا در به‌روزرسانی مهارت: ' + (data.message || 'خطای نامشخص'), 'error');
+                }
+            } catch (error) {
+                console.error('Error updating skill:', error);
+                showAlert('خطا در ارتباط با سرور', 'error');
+            }
+        }
+
+        // به‌روزرسانی شماره مهارت‌ها
+        function updateSkillNumbers() {
+            skillElements.forEach((element, index) => {
+                const title = element.querySelector('h3');
+                title.textContent = `مهارت ${index + 1}`;
+            });
+        }
+
+        // افزودن مهارت
+        addSkillBtn.addEventListener('click', function() {
+            if (skillElements.length >= 10) {
+                showAlert('شما نمی‌توانید بیش از 10 مهارت داشته باشید', 'error');
+                return;
+            }
+            
+            const skillElement = createSkillElement();
+            skillsContainer.appendChild(skillElement);
+            skillElements.push(skillElement);
+            updateSkillCounter();
+            submitBtn.classList.remove('hidden');
+        });
+
+        // ثبت مهارت‌ها
+        document.getElementById('skillsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!checkAuth()) return;
+            
+            const skillsData = [];
+            
+            skillElements.forEach(element => {
+                const classId = element.querySelector('.skill-class').value;
+                const subclassId = element.querySelector('.skill-subclass').value;
+                const level = element.querySelector('.skill-level').value;
+                
+                if (classId) {
+                    skillsData.push({
+                        class_id: parseInt(classId),
+                        subclass_id: subclassId ? parseInt(subclassId) : null,
+                        proficiency_level: level
+                    });
+                }
+            });
+            
+            if (skillsData.length === 0) {
+                showAlert('لطفاً حداقل یک مهارت انتخاب کنید', 'error');
+                return;
+            }
+            
+            console.log('Submitting skills data:', skillsData);
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'در حال ثبت...';
+            
+            try {
+                const token = localStorage.getItem('token');
+                console.log('Token from localStorage:', token ? token.substring(0, 20) + '...' : 'null');
+                
+                // تست توکن قبل از ارسال اصلی
+                const testResponse = await fetch('../backend/api/debug/token-test.php', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const testResult = await testResponse.text();
+                console.log('Token test result:', testResult);
+                
+                const response = await fetch('../backend/api/freelancer/skills.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ skills: skillsData })
+                });
+                
+                console.log('Skills Submit Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('Skills Submit Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Skills Submit Parsed Data:', data);
+                    
+                    if (response.ok) {
+                        showAlert('مهارت‌ها با موفقیت در دیتابیس ذخیره شدند!', 'success');
+                        // بارگذاری مجدد مهارت‌ها برای به‌روزرسانی skill_id ها
+                        setTimeout(async () => {
+                            await loadExistingSkills();
+                        }, 1000);
+                    } else {
+                        showAlert('خطا در ثبت مهارت‌ها: ' + (data.message || 'خطای نامشخص'), 'error');
+                    }
+                } catch (jsonError) {
+                    console.error('Skills Submit JSON Parse Error:', jsonError);
+                    showAlert('خطا در پردازش پاسخ سرور: ' + text.substring(0, 200), 'error');
+                }
+            } catch (error) {
+                console.error('Skills Submit Network Error:', error);
+                showAlert('خطا در ارتباط با سرور: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'ثبت مهارت‌ها';
+            }
+        });
+
+        // دریافت مهارت‌های موجود کاربر
+        async function fetchUserSkills() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('../backend/api/freelancer/skills.php', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('User Skills Response Status:', response.status);
+                
+                const text = await response.text();
+                console.log('User Skills Response Text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('User Skills Parsed Data:', data);
+                    
+                    if (response.ok && data.data && data.data.length > 0) {
+                        showAlert('مهارت‌های موجود شما بارگذاری شدند', 'success');
+                        return data.data;
+                    } else {
+                        console.log('No existing skills found');
+                        return [];
+                    }
+                } catch (jsonError) {
+                    console.error('User Skills JSON Parse Error:', jsonError);
+                    return [];
+                }
+            } catch (error) {
+                console.error('User Skills Network Error:', error);
+                return [];
+            }
+        }
+
+        // بارگذاری مهارت‌های موجود
+        async function loadExistingSkills() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('../backend/api/freelancer/skills.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    userSkills = data.data;
+                } else {
+                    userSkills = [];
+                }
+            } catch (error) {
+                console.error('Error fetching user skills:', error);
+                userSkills = [];
+            }
+            
+            // حذف مهارت‌های موجود در صفحه
+            skillsContainer.innerHTML = '';
+            skillElements = [];
+            
+            if (userSkills.length === 0) {
+                // اگر مهارتی وجود ندارد، اولین مهارت را اضافه کن
+                addSkillBtn.click();
+                return;
+            }
+            
+            // اضافه کردن مهارت‌های موجود
+            for (let skill of userSkills) {
+                const skillElement = createSkillElement(skill);
+                skillsContainer.appendChild(skillElement);
+                skillElements.push(skillElement);
+            }
+            
+            submitBtn.classList.remove('hidden');
+            updateSkillNumbers();
+            updateSkillCounter();
+        }
+
+        // راه‌اندازی
+        async function init() {
+            if (!checkAuth()) return;
+            
+            console.log('Initializing freelancer skills page...');
+            await fetchJobClasses();
+            
+            // بارگذاری مهارت‌های موجود
+            await loadExistingSkills();
+        }
+
+        init();
+    </script>
+</body>
+</html> 
